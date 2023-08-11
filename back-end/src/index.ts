@@ -17,6 +17,7 @@ let player1: Player;
 let player2: Player;
 let game: Game;
 let hashMap = new Map<string, Player>();
+let symbol: string;
 
 io.on("connection", (socket) => {
   if (io.engine.clientsCount > 2) {
@@ -24,6 +25,8 @@ io.on("connection", (socket) => {
     socket.disconnect();
   }
   else if (io.engine.clientsCount === 2) {
+    player2 = new Player(symbol, "");
+    game = new Game(player1, player2);
     hashMap.set(socket.id, player2);
     io.emit("start-game", { count: io.engine.clientsCount });
   }
@@ -31,7 +34,7 @@ io.on("connection", (socket) => {
     io.emit("start-game", { count: io.engine.clientsCount });
   }
   socket.on("disconnect", () => {
-    socket.broadcast.emit("start-game", "you won !");
+    socket.broadcast.emit("winner");
     io.disconnectSockets();
   });
 
@@ -39,15 +42,14 @@ io.on("connection", (socket) => {
     player1 = new Player(data.mySymbol, "");
     player1.round = 1;
     hashMap.set(socket.id, player1);
-    player2 = new Player(data.otherSymbol, "");
-    game = new Game(player1, player2);
+    symbol = data.otherSymbol;
   });
 
   socket.on("move", (data) => {
     if (hashMap.get(socket.id) === game.getCurrentPlayer()) {
       game.play(data.row, data.col);
       if (hashMap.get(socket.id)!.getStatus() === 1) {
-        io.emit("winner", hashMap.get(socket.id)!.getRightMove());
+        io.emit("winner", hashMap.get(socket.id)!.getRightMove(), socket.id);
       }
       else if (game.gameOver()) {
         io.emit("game-over");

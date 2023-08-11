@@ -3,21 +3,15 @@ import socket from "../socket";
 import { useEffect, useState } from "react";
 
 const Board = () => {
-  const [display, setDisplay] = useState("layer");
   const [board, setBoard] = useState(Array(3).fill("?").map(() => Array(3).fill("?")));
+  const [status, setStatus] = useState("");
+  const [display, setDisplay] = useState("hidden");
 
   const handleMove = (i: number, j: number) => {
     socket.emit("move", { row: i, col: j });
   };
 
-  const handleSymbol = (s: string = "X") => { 
-    let symbol: string ;
-    if (s === "X") symbol = "O";
-    else symbol = "X";
-    socket.emit("choose-symbol", { mySymbol: s, otherSymbol: symbol });
-  }
-
-  const handleWinner = (winner: { dir: string, row: number, col: number }) => { 
+  const handleWinner = (winner: { dir: string, row: number, col: number }, id: string) => { 
     switch (winner.dir) {
       case "horizontal":
         for (let i = 0; i < 3; i++) { 
@@ -44,37 +38,44 @@ const Board = () => {
       default:
         break;
     }
+    if (socket.id === id) {
+      handleGameOver("congratulations");
+    }
+    else {
+      handleGameOver("oops! sorry");
+  }
   }
 
   useEffect(() => {
-    socket.on("start-game", (data) => {
-      if (data.count === 2) {
-        setDisplay("hidden");
-      }
-    });
-
     socket.on("update", (data) => {
       setBoard(data.board);
     });
 
-    socket.on("winner", (data) => {
-      handleWinner(data);
+    socket.on("winner", (data, id) => {
+      if (!data) {
+        handleGameOver("congratulations");
+      }
+      handleWinner(data, id);
     });
 
     socket.on("game-over", () => {
-      
+      handleGameOver("game over try again!");
     });
-  }, []);
+  });
+
+  const handleGameOver = (s: string) => {
+    setTimeout(() => {
+      setDisplay("layer");
+      setStatus(s.toUpperCase());
+      localStorage.removeItem("userCount");
+    }, 1000);
+  }
 
   return (
     <div className="board">
       <div className={display}>
-        <input type="button" value="X"
-        onClick={() => handleSymbol("X")}/>
-        <input type="button" value="O"
-        onClick={() => handleSymbol("O")}/>
+      {status}
       </div>
-      
       {
         Array(3)
         .fill(null)

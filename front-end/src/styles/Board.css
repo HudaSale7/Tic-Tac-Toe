@@ -40,6 +40,19 @@
     justify-content: center;
     align-items: center;
     font-size: 80px;
+    gap: 30px;
+}
+
+.layer button {
+    width: 100px;
+    height: 100px;
+    font-size: 50px;
+    border-radius: 10px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.87);
+    color: rgba(158, 27, 246);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
 }
 
 .hidden {
