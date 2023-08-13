@@ -8,7 +8,7 @@ const Board = () => {
   const [display, setDisplay] = useState("hidden");
 
   const handleMove = (i: number, j: number) => {
-    socket.emit("move", { row: i, col: j });
+    socket.emit("move", {roomId: sessionStorage.roomId, row: i, col: j });
   };
 
   const handleWinner = (winner: { dir: string, row: number, col: number }, id: string) => { 
@@ -61,13 +61,17 @@ const Board = () => {
     socket.on("game-over", () => {
       handleGameOver("game over try again!");
     });
+
+    socket.on("error", (msg) => {
+      console.log(msg);
+    })
   });
 
   const handleGameOver = (s: string) => {
     setTimeout(() => {
       setDisplay("layer");
       setStatus(s.toUpperCase());
-      localStorage.removeItem("userCount");
+      sessionStorage.removeItem("roomId");
     }, 1000);
   }
 

@@ -1,13 +1,11 @@
 export class Player {
     private symbol: string;
-    private name: string;
     private status: number;
     public round: number;
     private rightMove: object;
 
-    constructor(symbol: string, name: string) {
+    constructor(symbol: string) {
         this.symbol = symbol;
-        this.name = name;
         this.status = 0;
         this.round = 0;
         this.rightMove = {
@@ -24,9 +22,6 @@ export class Player {
     }
     getStatus(): number {
         return this.status;
-    }
-    getName(): string {
-        return this.name;
     }
     setRightMove(dir: string, row: number, col: number) {
         this.rightMove = {

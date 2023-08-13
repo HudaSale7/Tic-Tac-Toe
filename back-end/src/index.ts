@@ -1,63 +1,75 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
+import { Room } from "./Room";
+import { Player } from "./Player";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://127.0.0.1:5173",
+    origin: "http://localhost:5173",
   },
 });
 
-import { Player } from "./Player";
-import { Game } from "./Game";
-
-let player1: Player;
-let player2: Player;
-let game: Game;
-let hashMap = new Map<string, Player>();
-let symbol: string;
+const roomsMap: Map<string, Room> = new Map();
 
 io.on("connection", (socket) => {
-  if (io.engine.clientsCount > 2) {
-    socket.emit("start-game", "sorry you cannot get in");
-    socket.disconnect();
-  }
-  else if (io.engine.clientsCount === 2) {
-    player2 = new Player(symbol, "");
-    game = new Game(player1, player2);
-    hashMap.set(socket.id, player2);
-    io.emit("start-game", { count: io.engine.clientsCount });
-  }
-  else {
-    io.emit("start-game", { count: io.engine.clientsCount });
-  }
-  socket.on("disconnect", () => {
-    socket.broadcast.emit("winner");
-    io.disconnectSockets();
-  });
+    socket.on("create-room", (msg) => {
+      const player: Player = new Player(msg.symbol);
+      player.round = 1;
 
-  socket.on("choose-symbol", (data) => {
-    player1 = new Player(data.mySymbol, "");
-    player1.round = 1;
-    hashMap.set(socket.id, player1);
-    symbol = data.otherSymbol;
-  });
+      const room = new Room(player);
+      const roomId: string = room.getRoomId();
+      roomsMap.set(roomId, room);
+      room.addPlayer(player, socket.id);
+      socket.join(roomId);
+
+      socket.emit("room-id", { roomId: roomId });
+    });
+  
+  socket.on("join-room", (msg) => { 
+    try {
+      const roomId: string = msg.roomId;
+      const room: Room | undefined = roomsMap.get(roomId);
+      if (!room) {
+        throw new Error("invalid URL");
+      }
+      if (room.playersCount === 2) {
+        throw new Error("room is taken");
+      }
+      let symbol: string;
+
+      if (room.getOwner().getSymbol() === "X") symbol = "O";
+      else symbol = "X";
+
+      const player: Player = new Player(symbol);
+      room.addPlayer(player, socket.id);
+      room.createGame(player);
+      socket.join(roomId);
+      io.to(roomId).emit("start-game");
+    } catch (err: any) {
+      socket.emit("error", { error: err.message });
+    }
+  })
 
   socket.on("move", (data) => {
-    if (hashMap.get(socket.id) === game.getCurrentPlayer()) {
-      game.play(data.row, data.col);
-      if (hashMap.get(socket.id)!.getStatus() === 1) {
-        io.emit("winner", hashMap.get(socket.id)!.getRightMove(), socket.id);
+    const room: Room | undefined = roomsMap.get(data.roomId);
+    if (room?.playersMap.get(socket.id) === room?.game?.getCurrentPlayer()) {
+      room?.game?.play(data.row, data.col);
+      if (room?.playersMap.get(socket.id)!.getStatus() === 1) {
+        io.to(data.roomId).emit("winner", room?.playersMap.get(socket.id)!.getRightMove(), socket.id);
+        roomsMap.delete(data.roomId);
       }
-      else if (game.gameOver()) {
-        io.emit("game-over");
+      else if (room?.game?.gameOver()) {
+        io.to(data.roomId).emit("game-over");
+        roomsMap.delete(data.roomId);
       }
     }
-    io.emit("update", { board: game.getBoard() });
+    io.to(data.roomId).emit("update", { board: room?.game?.getBoard() });
   });
 });
+
 
 server.listen(3000, () => {
   console.log("listening");

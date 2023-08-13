@@ -38,12 +38,27 @@
     z-index: 99;
     display: flex;
     justify-content: center;
+    flex-direction: column;
     align-items: center;
     font-size: 80px;
     gap: 30px;
 }
 
-.layer button {
+.layer div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.layer .div-symbol {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 70px;
+}
+
+.layer .symbol {
     width: 100px;
     height: 100px;
     font-size: 50px;
@@ -52,7 +67,58 @@
     background-color: rgba(255, 255, 255, 0.87);
     color: rgba(158, 27, 246);
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
+}
+
+.layer .invite {
+    width: 150px;
+    height: 50px;
+    font-size: 30px;
+    border: none;
+    background-color: #242424;
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.87);
+    cursor: pointer;
+}
+
+.layer .clicked {
+    border: 2px solid #242424;
+}
+
+.layer .Copy {
+    font-size: 20px;
+    margin: 0;
+}
+
+.layer .visible {
+    display: flex;
+    flex-direction: row;
+    gap: 5x;
+}
+
+.layer .visible span {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.87);
+}
+
+.layer .visible button {
+    width: 100px;
+    height: 30px;
+    border: none;
+    border-radius: 5px;
+    background-color: #242424;
+    color: rgba(255, 255, 255, 0.87);
+    cursor: pointer;
+}
+
+.layer .visible input {
+    width: 500px;
+    height: 30px;
+    border: none;
+    border-radius: 5px;
+    padding: 0 10px;
+    font-size: 20px;
+    background-color: #242424;
+    outline: none;
 }
 
 .hidden {
