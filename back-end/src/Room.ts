@@ -1,5 +1,5 @@
-import { Game } from "./Game";
-import { Player } from "./Player";
+import { Game } from "./Game.js";
+import { Player } from "./Player.js";
 import { v4 as uuidv4 } from 'uuid';
 
 export class Room {

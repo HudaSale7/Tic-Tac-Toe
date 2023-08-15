@@ -1,4 +1,4 @@
-import { Game } from "./Game";
+import { Game } from "./Game.js";
 import { v4 as uuidv4 } from 'uuid';
 export class Room {
     constructor(owner) {

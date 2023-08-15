@@ -1,8 +1,8 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import { Room } from "./Room";
-import { Player } from "./Player";
+import { Room } from "./Room.js";
+import { Player } from "./Player.js";
 import 'dotenv/config';
 const app = express();
 const server = http.createServer(app);
