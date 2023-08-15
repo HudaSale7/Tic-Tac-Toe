@@ -33,13 +33,13 @@ CLIENT_URL=http://localhost:5173
 #### 4. Install dependencies
 
 ```
-$ npm install
+npm install
 ```
 
 #### 5. Run backend
 
 ```
-$ npm run dev
+npm run dev
 ```
 
 #### 6. Go to frontend folder
@@ -53,11 +53,11 @@ VITE_API_URL=ws://localhost:3000
 #### 8. Install dependencies
 
 ```
-$ npm install
+npm install
 ```
 
 #### 9. Run frontend
 
 ```
-$ npm run dev
+npm run dev
 ```
