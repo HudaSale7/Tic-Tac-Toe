@@ -11,41 +11,6 @@ const Board = () => {
     socket.emit("move", {roomId: sessionStorage.roomId, row: i, col: j });
   };
 
-  const handleWinner = (winner: { dir: string, row: number, col: number }, id: string) => { 
-    switch (winner.dir) {
-      case "horizontal":
-        for (let i = 0; i < 3; i++) { 
-          document.getElementById(`${winner.row},${i}`)?.classList.add(winner.dir);
-        }
-        break;
-      case "vertical":
-        for (let i = 0; i < 3; i++) { 
-          document.getElementById(`${i},${winner.col}`)?.classList.add(winner.dir);
-        }
-        break;
-      case "diagonal":
-        if (winner.row === 0) {
-          for (let i = 0; i < 3; i++) { 
-            document.getElementById(`${i},${i}`)?.classList.add(winner.dir);
-          }
-        }
-        else {
-          for (let i = 2; i >= 0; i--) { 
-            document.getElementById(`${i},${i}`)?.classList.add(winner.dir);
-          }
-        }
-        break;
-      default:
-        break;
-    }
-    if (socket.id === id) {
-      handleGameOver("congratulations");
-    }
-    else {
-      handleGameOver("oops! sorry");
-  }
-  }
-
   useEffect(() => {
     socket.on("update", (data) => {
       setBoard(data.board);
@@ -62,9 +27,48 @@ const Board = () => {
       handleGameOver("game over try again!");
     });
 
-    socket.on("error", (msg) => {
-      console.log(msg);
-    })
+    socket.on("disconnect", () => { 
+      sessionStorage.removeItem("roomId");
+    });
+
+    socket.on("opponent-disconnected", () => { 
+      handleGameOver("opponent left the game");
+    });
+
+    const handleWinner = (winner: { dir: string, row: number, col: number }, id: string) => { 
+      switch (winner.dir) {
+        case "horizontal":
+          for (let i = 0; i < 3; i++) { 
+            document.getElementById(`${winner.row},${i}`)?.classList.add(winner.dir);
+          }
+          break;
+        case "vertical":
+          for (let i = 0; i < 3; i++) { 
+            document.getElementById(`${i},${winner.col}`)?.classList.add(winner.dir);
+          }
+          break;
+        case "diagonal":
+          if (winner.row === 0) {
+            for (let i = 0; i < 3; i++) { 
+              document.getElementById(`${i},${i}`)?.classList.add(winner.dir);
+            }
+          }
+          else {
+            for (let i = 2; i >= 0; i--) { 
+              document.getElementById(`${i},${i}`)?.classList.add(winner.dir);
+            }
+          }
+          break;
+        default:
+          break;
+      }
+      if (socket.id === id) {
+        handleGameOver("congratulations");
+      }
+      else {
+        handleGameOver("oops! sorry");
+    }
+    }
   });
 
   const handleGameOver = (s: string) => {

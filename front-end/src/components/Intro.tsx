@@ -11,8 +11,11 @@ const Intro = () => {
     const [roomId, setRoomId] = useState("");
     const [isCopied, setIsCopied] = useState(false);
     const [customId, setCustomId] = useState("");
+    const [error, setError] = useState(false);
+    const [errorMassage, setErrorMassage] = useState("");
     const navigate = useNavigate();
     const handleSymbol = (s: string) => { 
+        setError(false);
         if (s === "X") {
             setClickedX(true);
             setClickedO(false);
@@ -24,16 +27,24 @@ const Intro = () => {
         socket.emit("create-room", { symbol: s });
     }
     const handleInvite = () => {
+        if (!clickedO && !clickedX) {
+            setError(true);
+            setErrorMassage("Please select a symbol first!");
+            return;
+        }
+        setError(false);
         setDisplay("visible");
         setJoin("hidden");
     }
 
     const handleJoin = () => {
+        setError(false);
         setJoin("visible");
         setDisplay("hidden");
     }
 
     const handleJoinWithId = () => {
+        setError(false);
         sessionStorage.setItem("roomId", customId);
         socket.emit("join-room", { roomId: customId });
     }
@@ -47,10 +58,16 @@ const Intro = () => {
         socket.on("start-game", () => {
             navigate("/board");
         });
+        
+        socket.on("error", (msg) => {
+            setError(true);
+            setErrorMassage(msg.error)
+        })
     }, [navigate]);
     
     return ( 
         <div className="layer">
+            {error ? <p>{ errorMassage}</p> : null}
             <div className="div-symbol">
                 <button className={`symbol ${clickedX ? "clicked" : ""}`}
                     onClick={() => handleSymbol("X")}

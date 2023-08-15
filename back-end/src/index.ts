@@ -3,12 +3,13 @@ import http from "http";
 import { Server } from "socket.io";
 import { Room } from "./Room";
 import { Player } from "./Player";
+import 'dotenv/config';
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
   },
 });
 
@@ -29,11 +30,12 @@ io.on("connection", (socket) => {
     });
   
   socket.on("join-room", (msg) => { 
+    
     try {
       const roomId: string = msg.roomId;
       const room: Room | undefined = roomsMap.get(roomId);
       if (!room) {
-        throw new Error("invalid URL");
+        throw new Error("Invalid id");
       }
       if (room.playersCount === 2) {
         throw new Error("room is taken");
@@ -68,9 +70,15 @@ io.on("connection", (socket) => {
     }
     io.to(data.roomId).emit("update", { board: room?.game?.getBoard() });
   });
+
+  socket.on("disconnecting", () => {
+    const room: string = Array.from(socket.rooms)[1];
+    if (room) { 
+      io.to(room).emit("opponent-disconnected");
+    }
+  });
 });
 
-
-server.listen(3000, () => {
+server.listen(process.env.PORT, () => {
   console.log("listening");
 });

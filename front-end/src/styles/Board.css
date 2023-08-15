@@ -51,6 +51,11 @@
     gap: 30px;
 }
 
+.layer p {
+    margin: 0;
+    font-size: 25px;
+}
+
 .layer .div-symbol {
     display: flex;
     justify-content: center;
