@@ -4,7 +4,7 @@ import "./styles/index.css";
 import { BrowserRouter } from "react-router-dom";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <BrowserRouter basename="/Tic-Tac-Toe/">
+  <BrowserRouter basename="/Tic-Tac-Toe">
     <App />
   </BrowserRouter>
 );
