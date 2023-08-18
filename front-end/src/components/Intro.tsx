@@ -8,7 +8,7 @@ const Intro = () => {
     const [clickedO, setClickedO] = useState(false);
     const [display, setDisplay] = useState("hidden");
     const [Join, setJoin] = useState("hidden");
-    const [roomId, setRoomId] = useState("");
+    const [roomId, setRoomId] = useState("Loading...");
     const [isCopied, setIsCopied] = useState(false);
     const [customId, setCustomId] = useState("");
     const [error, setError] = useState(false);
